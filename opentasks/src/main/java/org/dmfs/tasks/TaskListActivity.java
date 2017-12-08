@@ -25,7 +25,6 @@ import android.net.Uri;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.ColorInt;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -63,6 +62,7 @@ import org.dmfs.tasks.model.ContentSet;
 import org.dmfs.tasks.utils.BaseActivity;
 import org.dmfs.tasks.utils.ExpandableGroupDescriptor;
 import org.dmfs.tasks.utils.SearchHistoryHelper;
+import org.dmfs.tasks.utils.colors.DarkenedForStatusBar;
 import org.dmfs.xmlobjects.pull.XmlObjectPullParserException;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -743,16 +743,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     };
 
 
-    private int darkenColor(@ColorInt int color)
-    {
-        float[] hsv = new float[3];
-        android.graphics.Color.colorToHSV(color, hsv);
-        hsv[2] = hsv[2] * 0.75f;
-        color = android.graphics.Color.HSVToColor(hsv);
-        return color;
-    }
-
-
     @SuppressLint("NewApi")
     @Override
     public void updateColor(Color color)
@@ -772,7 +762,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
             {
                 Window window = getWindow();
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(darkenColor(colorInt));
+                window.setStatusBarColor(new DarkenedForStatusBar(colorInt).argb());
             }
         }
     }
