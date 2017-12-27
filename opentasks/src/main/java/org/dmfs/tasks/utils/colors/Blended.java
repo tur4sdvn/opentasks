@@ -20,7 +20,13 @@ import org.dmfs.android.bolts.color.Color;
 
 
 /**
- * Color blended from two others. See implementation for details.
+ * Color blended from two others.
+ * <p>
+ * This is essentially the reverse of {@link Mixed}. So if {@link Mixed} blends the colors A and B into C, this class returns B when you give it A (baseColor),
+ * C (targetColor) and the alpha value of B.
+ * <p>
+ * This is used in the editor to determine the color of the action bar, so it mixes with the background in a way that keeps the result the same (while the alpha
+ * of the action bar goes towards opaque).
  *
  * @author Gabor Keszthelyi
  */
