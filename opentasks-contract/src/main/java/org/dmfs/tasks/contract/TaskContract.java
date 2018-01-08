@@ -1036,8 +1036,7 @@ public final class TaskContract
         String INSTANCE_DURATION = "instance_duration";
 
         /**
-         * The start of the original instance as specified in the master task. For non-recurring task instances this equals the value of {@link
-         * #INSTANCE_START}, except that `null` values are represented as `0`.
+         * The start of the original instance as specified in the master task. For non-recurring task instances this is {@code null}.
          * <p>
          * For recurring tasks, these are the timestamps which have been derived from the recurrence rule or dates, except those specified as exdates.
          */
