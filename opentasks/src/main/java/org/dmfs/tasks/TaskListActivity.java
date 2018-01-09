@@ -26,6 +26,7 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -47,6 +48,8 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import org.dmfs.android.bolts.color.Color;
+import org.dmfs.android.bolts.color.colors.PrimaryColor;
+import org.dmfs.android.bolts.color.elementary.ValueColor;
 import org.dmfs.android.retentionmagic.annotations.Retain;
 import org.dmfs.provider.tasks.AuthorityUtil;
 import org.dmfs.tasks.contract.TaskContract.Tasks;
@@ -92,8 +95,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
      **/
     public static final String EXTRA_FORCE_LIST_SELECTION = "org.dmfs.tasks.FORCE_LIST_SELECTION";
 
-    private static final String TAG = "TaskListActivity";
-
     private final static int REQUEST_CODE_NEW_TASK = 2924;
 
     /**
@@ -101,7 +102,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
      */
     private final static int SEARCH_UPDATE_DELAY = 400; // ms
 
-    private final static String DETAIL_FRAGMENT_TAG = "taskListActivity.ViewTaskFragment";
+    private final static String DETAILS_FRAGMENT_TAG = "details_fragment_tag";
 
     /**
      * Array of {@link ExpandableGroupDescriptor}s.
@@ -117,6 +118,14 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
     @Retain(permanent = true)
     private int mCurrentPageId;
+
+    /**
+     * The last used color for the toolbars. {@link android.graphics.Color#TRANSPARENT} represents the absent value.
+     * (Used upon start/rotation until the actually selected task with its color is loaded, to avoid flashing up primary color.)
+     */
+    @Retain(permanent = true)
+    @ColorInt
+    private int mLastUsedColor = android.graphics.Color.TRANSPARENT;
 
     /**
      * The current pager position
@@ -180,6 +189,12 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     {
         super.onCreate(savedInstanceState);
 
+        if (mLastUsedColor == android.graphics.Color.TRANSPARENT)
+        {
+            // no saved color, use the primary color
+            mLastUsedColor = new PrimaryColor(this).argb();
+        }
+
         // check for single pane activity change
         mTwoPane = getResources().getBoolean(R.bool.has_two_panes);
 
@@ -191,6 +206,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
             {
                 Intent viewTaskIntent = new Intent(Intent.ACTION_VIEW);
                 viewTaskIntent.setData(mSelectedTaskUri);
+                viewTaskIntent.putExtra(ViewTaskActivity.EXTRA_COLOR, mLastUsedColor);
                 startActivity(viewTaskIntent);
                 mShouldSwitchToDetail = false;
                 mTransientState = true;
@@ -211,21 +227,18 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
         if (findViewById(R.id.task_detail_container) != null)
         {
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-
-            // get list fragment
-            // mTaskListFrag = (TaskListFragment) getSupportFragmentManager().findFragmentById(R.id.task_list);
-            // mTaskListFrag.setListViewScrollbarPositionLeft(true);
-
-            // mTaskListFrag.setActivateOnItemClick(true);
-
-            loadTaskDetailFragment(mSelectedTaskUri);
+            /* Note: 'savedInstanceState == null' is not used here as would be usual with fragments, because of the case of when rotation means
+            switching from one-pane mode to two-pane mode on small tablets and the fragment has to added. To cover that case as well, the fragment is always replaced. */
+            replaceTaskDetailsFragment(
+                    mSelectedTaskUri == null ?
+                            EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor))
+                            : ViewTaskFragment.newInstance(mSelectedTaskUri, new ValueColor(mLastUsedColor)));
         }
         else
         {
+            // When rotating the screen means switching from two-pane to single-pane mode (on small tablets), remove the obsolete fragment that gets recreated by FragmentManager:
             FragmentManager fragmentManager = getSupportFragmentManager();
-            Fragment detailFragment = fragmentManager.findFragmentByTag(DETAIL_FRAGMENT_TAG);
+            Fragment detailFragment = fragmentManager.findFragmentByTag(DETAILS_FRAGMENT_TAG);
             if (detailFragment != null)
             {
                 fragmentManager.beginTransaction().remove(detailFragment).commit();
@@ -375,7 +388,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
      * Callback method from {@link TaskListFragment.Callbacks} indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(Uri uri, boolean forceReload, int pagePosition)
+    public void onItemSelected(@NonNull Uri uri, @NonNull Color taskListColor, boolean forceReload, int pagePosition)
     {
         // only accept selections from the current visible task fragment or the activity itself
         if (pagePosition == -1 || pagePosition == mCurrentPagePosition)
@@ -388,7 +401,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
                     mSelectedTaskUri = null;
                     mShouldSwitchToDetail = false;
                 }
-                loadTaskDetailFragment(uri);
+                replaceTaskDetailsFragment(ViewTaskFragment.newInstance(uri, taskListColor));
             }
             else if (forceReload)
             {
@@ -398,6 +411,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
                 // for the selected item ID.
                 Intent detailIntent = new Intent(Intent.ACTION_VIEW);
                 detailIntent.setData(uri);
+                detailIntent.putExtra(ViewTaskActivity.EXTRA_COLOR, mLastUsedColor);
                 startActivity(detailIntent);
                 mShouldSwitchToDetail = false;
             }
@@ -405,34 +419,22 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     }
 
 
-    private void loadTaskDetailFragment(Uri uri)
+    @Override
+    public void onItemRemoved()
     {
-        Fragment detailFragment = getSupportFragmentManager().findFragmentByTag(DETAIL_FRAGMENT_TAG);
-
-        if (uri == null)
+        if (mTwoPane)
         {
-            if (!(detailFragment instanceof EmptyTaskFragment))
-            {
-                replaceDetailFragment(new EmptyTaskFragment());
-            }
-        }
-        else
-        {
-            if (detailFragment instanceof ViewTaskFragment)
-            {
-                ((ViewTaskFragment) detailFragment).loadUri(uri);
-            }
-            else
-            {
-                replaceDetailFragment(ViewTaskFragment.newInstance(uri));
-            }
+            mShouldShowDetails = true;
+            replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
         }
     }
 
 
-    private void replaceDetailFragment(Fragment fragment)
+    private void replaceTaskDetailsFragment(@NonNull Fragment fragment)
     {
-        getSupportFragmentManager().beginTransaction().replace(R.id.task_detail_container, fragment, DETAIL_FRAGMENT_TAG).commit();
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(0, R.anim.openttasks_fade_exit, 0, 0)
+                .replace(R.id.task_detail_container, fragment, DETAILS_FRAGMENT_TAG).commit();
     }
 
 
@@ -533,14 +535,14 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
 
     @Override
-    public void onDelete(Uri taskUri)
+    public void onDelete()
     {
         // nothing to do here, the loader will take care of reloading the list and the list view will take care of selecting the next element.
 
-        // empty the detail fragment
         if (mTwoPane)
         {
-            loadTaskDetailFragment(null);
+            // empty the detail fragment
+            replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
         }
     }
 
@@ -720,8 +722,9 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
     @SuppressLint("NewApi")
     @Override
-    public void updateColor(Color color)
+    public void updateColor(@NonNull Color color)
     {
+        mLastUsedColor = color.argb();
         if (mTwoPane)
         {
             int colorInt = color.argb();
