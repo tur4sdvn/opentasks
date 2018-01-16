@@ -55,8 +55,10 @@ import org.dmfs.android.retentionmagic.SupportFragment;
 import org.dmfs.android.retentionmagic.annotations.Parameter;
 import org.dmfs.android.retentionmagic.annotations.Retain;
 import org.dmfs.tasks.contract.TaskContract.Tasks;
+import org.dmfs.tasks.detailsscreen.RowDataSubtaskViewParams;
+import org.dmfs.tasks.detailsscreen.RowDataSubtasksViewParams;
+import org.dmfs.tasks.detailsscreen.SubtasksSource;
 import org.dmfs.tasks.detailsscreen.SubtasksView;
-import org.dmfs.tasks.detailsscreen.SubtasksViewParamsSource;
 import org.dmfs.tasks.model.ContentSet;
 import org.dmfs.tasks.model.Model;
 import org.dmfs.tasks.model.OnContentChangeListener;
@@ -436,10 +438,10 @@ public class ViewTaskFragment extends SupportFragment
             }
         }
 
-        mDisposables.add(new SubtasksViewParamsSource(mAppContext, mTaskUri, new ValueColor(mListColor))
-                .subscribe(subtasksViewParams ->
+        mDisposables.add(new SubtasksSource(mAppContext, mTaskUri, RowDataSubtaskViewParams.SUBTASK_PROJECTION)
+                .subscribe(subtasks ->
                 {
-                    new SubtasksView(mContent).update(subtasksViewParams);
+                    new SubtasksView(mContent).update(new RowDataSubtasksViewParams(new ValueColor(mListColor), subtasks));
                 }));
     }
 
