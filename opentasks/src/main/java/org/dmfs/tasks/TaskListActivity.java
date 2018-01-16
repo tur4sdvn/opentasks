@@ -398,7 +398,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
                 mShouldShowDetails = true;
                 if (forceReload)
                 {
-                    mSelectedTaskUri = null;
+                    mSelectedTaskUri = uri;
                     mShouldSwitchToDetail = false;
                 }
                 replaceTaskDetailsFragment(ViewTaskFragment.newInstance(uri, taskListColor));
