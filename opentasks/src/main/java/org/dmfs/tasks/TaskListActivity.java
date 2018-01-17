@@ -158,12 +158,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     private Uri mSelectedTaskUriOnLaunch;
 
     /**
-     * Indicates to display the two pane layout with details
-     **/
-    @Retain
-    private boolean mShouldShowDetails = false;
-
-    /**
      * Indicates to show ViewTaskActivity when rotating to single pane.
      **/
     @Retain
@@ -202,7 +196,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
         if (mSelectedTaskUri != null)
         {
-            if (mShouldShowDetails && mShouldSwitchToDetail)
+            if (!mTwoPane && mShouldSwitchToDetail)
             {
                 Intent viewTaskIntent = new Intent(Intent.ACTION_VIEW);
                 viewTaskIntent.setData(mSelectedTaskUri);
@@ -214,7 +208,7 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
         }
         else
         {
-            mShouldShowDetails = false;
+            mShouldSwitchToDetail = false;
         }
 
         setContentView(R.layout.activity_task_list);
@@ -393,7 +387,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
         {
             if (mTwoPane)
             {
-                mShouldShowDetails = true;
                 if (forceReload)
                 {
                     mSelectedTaskUri = uri;
@@ -422,7 +415,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     {
         if (mTwoPane)
         {
-            mShouldShowDetails = true;
             replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
         }
     }
