@@ -527,8 +527,8 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     @Override
     public void onDelete()
     {
+        mSelectedTaskUri = null;
         // nothing to do here, the loader will take care of reloading the list and the list view will take care of selecting the next element.
-
         if (mTwoPane)
         {
             // empty the detail fragment
