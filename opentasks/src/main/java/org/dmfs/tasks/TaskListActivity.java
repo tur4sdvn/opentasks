@@ -251,8 +251,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
         mPagerAdapter = new Unchecked<>(() -> new TaskGroupPagerAdapter(getSupportFragmentManager(), mGroupingFactories, this, R.xml.listview_tabs)).value();
 
-        // Setup ViewPager
-        mPagerAdapter.setTwoPaneLayout(mTwoPane);
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mPagerAdapter);
 

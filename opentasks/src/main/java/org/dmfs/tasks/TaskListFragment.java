@@ -93,7 +93,6 @@ public class TaskListFragment extends SupportFragment
     private static final String TAG = "org.dmfs.tasks.TaskListFragment";
 
     private final static String ARG_INSTANCE_ID = "instance_id";
-    private final static String ARG_TWO_PANE_LAYOUT = "two_pane_layout";
 
     private static final long INTERVAL_LISTVIEW_REDRAW = 60000;
 
@@ -130,13 +129,12 @@ public class TaskListFragment extends SupportFragment
     @Parameter(key = ARG_INSTANCE_ID)
     private int mInstancePosition;
 
-    @Parameter(key = ARG_TWO_PANE_LAYOUT)
-    private boolean mTwoPaneLayout;
-
     private Loader<Cursor> mCursorLoader;
     private String mAuthority;
 
     private Uri mSelectedTaskUri;
+
+    private boolean mTwoPaneLayout;
 
     /**
      * The child position to open when the fragment is displayed.
@@ -228,12 +226,11 @@ public class TaskListFragment extends SupportFragment
     });
 
 
-    public static TaskListFragment newInstance(int instancePosition, boolean twoPaneLayout)
+    public static TaskListFragment newInstance(int instancePosition)
     {
         TaskListFragment result = new TaskListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_INSTANCE_ID, instancePosition);
-        args.putBoolean(ARG_TWO_PANE_LAYOUT, twoPaneLayout);
         result.setArguments(args);
         return result;
     }
@@ -251,6 +248,9 @@ public class TaskListFragment extends SupportFragment
     public void onAttach(Activity activity)
     {
         super.onAttach(activity);
+
+        mTwoPaneLayout = activity.getResources().getBoolean(R.bool.has_two_panes);
+
         mAuthority = AuthorityUtil.taskAuthority(activity);
 
         mAppContext = activity.getBaseContext();
