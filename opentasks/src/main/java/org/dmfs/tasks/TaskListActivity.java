@@ -411,11 +411,15 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
 
     @Override
-    public void onItemRemoved()
+    public void onItemRemoved(@NonNull Uri taskUri)
     {
-        if (mTwoPane)
+        if (taskUri.equals(mSelectedTaskUri))
         {
-            replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
+            mSelectedTaskUri = null;
+            if (mTwoPane)
+            {
+                replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
+            }
         }
     }
 

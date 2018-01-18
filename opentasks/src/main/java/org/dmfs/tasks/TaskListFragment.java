@@ -200,9 +200,15 @@ public class TaskListFragment extends SupportFragment
         void onItemSelected(@NonNull Uri taskUri, @NonNull Color taskListColor, boolean forceReload, int pagePosition);
 
         /**
-         * Called when an item has been removed (i.e. the task has been deleted).
+         * Called when a task has been removed from the list.
+         * <p>
+         * TODO It's only called when task is deleted by the swipe out, and not when it is completed.
+         * It should probably be called that time, too. See https://github.com/dmfs/opentasks/issues/641.
+         *
+         * @param taskUri
+         *         the content uri of the task that has been removed
          */
-        void onItemRemoved();
+        void onItemRemoved(@NonNull Uri taskUri);
 
         ExpandableGroupDescriptor getGroupDescriptor(int position);
 
@@ -591,7 +597,7 @@ public class TaskListFragment extends SupportFragment
                 // TODO: remove the task in a background task
                 mAppContext.getContentResolver().delete(taskUri, null, null);
                 Snackbar.make(mExpandableListView, getString(R.string.toast_task_deleted, taskTitle), Snackbar.LENGTH_SHORT).show();
-                mCallbacks.onItemRemoved();
+                mCallbacks.onItemRemoved(taskUri);
             }
         }).setMessage(getString(R.string.confirm_delete_message_with_title, taskTitle)).create().show();
     }
