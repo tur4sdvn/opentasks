@@ -152,11 +152,8 @@ public class TaskListFragment extends SupportFragment
         {
             selectChildView(parent, groupPosition, childPosition, true);
 
-            if (mExpandableListView.getChoiceMode() == ExpandableListView.CHOICE_MODE_SINGLE)
-            {
-                mActivatedPositionGroup = groupPosition;
-                mActivatedPositionChild = childPosition;
-            }
+            mActivatedPositionGroup = groupPosition;
+            mActivatedPositionChild = childPosition;
             /*
              * In contrast to a ListView an ExpandableListView does not set the activated item on it's own. So we have to do that here.
              */
