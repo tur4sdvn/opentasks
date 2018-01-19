@@ -795,7 +795,7 @@ public class EditTaskFragment extends SupportFragment implements LoaderManager.L
                 {
                     activity.startActivity(
                             new Intent(Intent.ACTION_VIEW, mTaskUri)
-                                    .putExtra(ViewTaskActivity.EXTRA_COLOR, TaskFieldAdapters.LIST_COLOR.get(mValues)));
+                                    .putExtra(ViewTaskActivity.EXTRA_COLOR, mListColor));
                 }
             }
             else
