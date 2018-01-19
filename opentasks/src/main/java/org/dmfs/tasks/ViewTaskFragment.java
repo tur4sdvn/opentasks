@@ -169,12 +169,12 @@ public class ViewTaskFragment extends SupportFragment
         void onTaskEditRequested(@NonNull Uri taskUri, @Nullable ContentSet data);
 
         /**
-         * Called when the task has been deleted.
+         * Called when the task has been deleted by the user.
          */
         void onTaskDeleted(@NonNull Uri taskUri);
 
         /**
-         * Called when the task has been marked completed.
+         * Called when the task has been marked completed by the user.
          */
         void onTaskCompleted(@NonNull Uri taskUri);
 
@@ -565,6 +565,7 @@ public class ViewTaskFragment extends SupportFragment
                         // TODO: remove the task in a background task
                         mContentSet.delete(mAppContext);
                         mCallback.onTaskDeleted(mTaskUri);
+                        mTaskUri = null;
                     }
                 }
             }).setMessage(R.string.confirm_delete_message).create().show();
@@ -720,7 +721,7 @@ public class ViewTaskFragment extends SupportFragment
         @Override
         public void onChange(boolean selfChange)
         {
-            if (mContentSet != null)
+            if (mContentSet != null && mTaskUri != null)
             {
                 // reload the task
                 mContentSet.update(mAppContext, CONTENT_VALUE_MAPPER);
