@@ -424,6 +424,29 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     }
 
 
+    @Override
+    public void onAddNewTask()
+    {
+        Intent editTaskIntent = new Intent(Intent.ACTION_INSERT);
+        editTaskIntent.setData(Tasks.getContentUri(mAuthority));
+        startActivityForResult(editTaskIntent, REQUEST_CODE_NEW_TASK);
+    }
+
+
+    @Override
+    public ExpandableGroupDescriptor getGroupDescriptor(int pageId)
+    {
+        for (AbstractGroupingFactory factory : mGroupingFactories)
+        {
+            if (factory.getId() == pageId)
+            {
+                return factory.getExpandableGroupDescriptor();
+            }
+        }
+        return null;
+    }
+
+
     private void replaceTaskDetailsFragment(@NonNull Fragment fragment)
     {
         getSupportFragmentManager().beginTransaction()
@@ -456,30 +479,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
                 getSupportActionBar().setTitle(R.string.task_group_title_default);
                 break;
         }
-    }
-
-
-    @Override
-    public void onEditTask(Uri taskUri, ContentSet data)
-    {
-        Intent editTaskIntent = new Intent(Intent.ACTION_EDIT);
-        editTaskIntent.setData(taskUri);
-        if (data != null)
-        {
-            Bundle extraBundle = new Bundle();
-            extraBundle.putParcelable(EditTaskActivity.EXTRA_DATA_CONTENT_SET, data);
-            editTaskIntent.putExtra(EditTaskActivity.EXTRA_DATA_BUNDLE, extraBundle);
-        }
-        startActivity(editTaskIntent);
-    }
-
-
-    @Override
-    public void onAddNewTask()
-    {
-        Intent editTaskIntent = new Intent(Intent.ACTION_INSERT);
-        editTaskIntent.setData(Tasks.getContentUri(mAuthority));
-        startActivityForResult(editTaskIntent, REQUEST_CODE_NEW_TASK);
     }
 
 
@@ -529,14 +528,67 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
 
 
     @Override
-    public void onDelete()
+    public void onTaskEditRequested(@NonNull Uri taskUri, ContentSet data)
     {
-        mSelectedTaskUri = null;
-        // nothing to do here, the loader will take care of reloading the list and the list view will take care of selecting the next element.
+        Intent editTaskIntent = new Intent(Intent.ACTION_EDIT);
+        editTaskIntent.setData(taskUri);
+        if (data != null)
+        {
+            Bundle extraBundle = new Bundle();
+            extraBundle.putParcelable(EditTaskActivity.EXTRA_DATA_CONTENT_SET, data);
+            editTaskIntent.putExtra(EditTaskActivity.EXTRA_DATA_BUNDLE, extraBundle);
+        }
+        startActivity(editTaskIntent);
+    }
+
+
+    @Override
+    public void onTaskDeleted(@NonNull Uri taskUri)
+    {
+        if (taskUri.equals(mSelectedTaskUri)) // Only the selected task can be deleted on the UI, but just to be safe
+        {
+            mSelectedTaskUri = null;
+            if (mTwoPane)
+            {
+                // empty the detail fragment
+                replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
+            }
+        }
+        // The loader will take care of reloading the list and the list view will take care of selecting the next element.
+    }
+
+
+    @Override
+    public void onTaskCompleted(@NonNull Uri taskUri)
+    {
+        /* TODO We delegate to onTaskDeleted() which was used previously for this event, too.
+        This causes the removal of details view, but the task is selected again if completed tasks are shown. This causes a flash. */
+        onTaskDeleted(taskUri);
+    }
+
+
+    @SuppressLint("NewApi")
+    @Override
+    public void onListColorLoaded(@NonNull Color color)
+    {
+        mLastUsedColor = color.argb();
         if (mTwoPane)
         {
-            // empty the detail fragment
-            replaceTaskDetailsFragment(EmptyTaskFragment.newInstance(new ValueColor(mLastUsedColor)));
+            int colorInt = color.argb();
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colorInt));
+            mTabs.setBackgroundColor(colorInt);
+
+            if (mAppBarLayout != null)
+            {
+                mAppBarLayout.setBackgroundColor(colorInt);
+            }
+
+            if (VERSION.SDK_INT >= 21)
+            {
+                Window window = getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(darkenColor(colorInt));
+            }
         }
     }
 
@@ -674,20 +726,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
     }
 
 
-    @Override
-    public ExpandableGroupDescriptor getGroupDescriptor(int pageId)
-    {
-        for (AbstractGroupingFactory factory : mGroupingFactories)
-        {
-            if (factory.getId() == pageId)
-            {
-                return factory.getExpandableGroupDescriptor();
-            }
-        }
-        return null;
-    }
-
-
     /**
      * Notifies the search fragment of an update.
      */
@@ -711,32 +749,6 @@ public class TaskListActivity extends BaseActivity implements TaskListFragment.C
         hsv[2] = hsv[2] * 0.75f;
         color = android.graphics.Color.HSVToColor(hsv);
         return color;
-    }
-
-
-    @SuppressLint("NewApi")
-    @Override
-    public void updateColor(@NonNull Color color)
-    {
-        mLastUsedColor = color.argb();
-        if (mTwoPane)
-        {
-            int colorInt = color.argb();
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(colorInt));
-            mTabs.setBackgroundColor(colorInt);
-
-            if (mAppBarLayout != null)
-            {
-                mAppBarLayout.setBackgroundColor(colorInt);
-            }
-
-            if (VERSION.SDK_INT >= 21)
-            {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(darkenColor(colorInt));
-            }
-        }
     }
 
 

@@ -207,9 +207,9 @@ public class TaskListFragment extends SupportFragment
          */
         void onItemRemoved(@NonNull Uri taskUri);
 
-        ExpandableGroupDescriptor getGroupDescriptor(int position);
-
         void onAddNewTask();
+
+        ExpandableGroupDescriptor getGroupDescriptor(int position);
     }
 
 

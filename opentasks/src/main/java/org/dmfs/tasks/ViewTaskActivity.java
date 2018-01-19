@@ -121,7 +121,7 @@ public class ViewTaskActivity extends BaseActivity implements ViewTaskFragment.C
 
 
     @Override
-    public void onEditTask(Uri taskUri, ContentSet data)
+    public void onTaskEditRequested(@NonNull Uri taskUri, ContentSet data)
     {
         Intent editTaskIntent = new Intent(Intent.ACTION_EDIT);
         editTaskIntent.setData(taskUri);
@@ -136,11 +136,17 @@ public class ViewTaskActivity extends BaseActivity implements ViewTaskFragment.C
 
 
     @Override
-    public void onDelete()
+    public void onTaskDeleted(@NonNull Uri taskUri)
     {
-        /*
-         * The task we're showing has been deleted, just finish.
-         */
+        // The task we're showing has been deleted, just finish.
+        finish();
+    }
+
+
+    @Override
+    public void onTaskCompleted(@NonNull Uri taskUri)
+    {
+        // The task we're showing has been completed, just finish.
         finish();
     }
 
@@ -157,7 +163,7 @@ public class ViewTaskActivity extends BaseActivity implements ViewTaskFragment.C
 
     @SuppressLint("NewApi")
     @Override
-    public void updateColor(@NonNull Color color)
+    public void onListColorLoaded(@NonNull Color color)
     {
 
         if (VERSION.SDK_INT >= 21)

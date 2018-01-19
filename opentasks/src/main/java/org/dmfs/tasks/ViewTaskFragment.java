@@ -29,6 +29,7 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.AppBarLayout.OnOffsetChangedListener;
 import android.support.design.widget.CoordinatorLayout;
@@ -158,19 +159,24 @@ public class ViewTaskFragment extends SupportFragment
     public interface Callback
     {
         /**
-         * This is called to instruct the Activity to call the editor for a specific task.
+         * Called when user pressed 'edit' for the task.
          *
          * @param taskUri
          *         The {@link Uri} of the task to edit.
          * @param data
          *         The task data that belongs to the {@link Uri}. This is purely an optimization and may be <code>null</code>.
          */
-        void onEditTask(Uri taskUri, ContentSet data);
+        void onTaskEditRequested(@NonNull Uri taskUri, @Nullable ContentSet data);
 
         /**
-         * This is called to inform the Activity that a task has been deleted.
+         * Called when the task has been deleted.
          */
-        void onDelete();
+        void onTaskDeleted(@NonNull Uri taskUri);
+
+        /**
+         * Called when the task has been marked completed.
+         */
+        void onTaskCompleted(@NonNull Uri taskUri);
 
         /**
          * Notifies the listener about the list color of the current task.
@@ -178,7 +184,7 @@ public class ViewTaskFragment extends SupportFragment
          * @param color
          *         The color.
          */
-        void updateColor(@NonNull Color color);
+        void onListColorLoaded(@NonNull Color color);
     }
 
 
@@ -536,7 +542,7 @@ public class ViewTaskFragment extends SupportFragment
         if (itemId == R.id.edit_task)
         {
             // open editor for this task
-            mCallback.onEditTask(mTaskUri, mContentSet);
+            mCallback.onTaskEditRequested(mTaskUri, mContentSet);
             return true;
         }
         else if (itemId == R.id.delete_task)
@@ -558,7 +564,7 @@ public class ViewTaskFragment extends SupportFragment
                     {
                         // TODO: remove the task in a background task
                         mContentSet.delete(mAppContext);
-                        mCallback.onDelete();
+                        mCallback.onTaskDeleted(mTaskUri);
                     }
                 }
             }).setMessage(R.string.confirm_delete_message).create().show();
@@ -621,8 +627,7 @@ public class ViewTaskFragment extends SupportFragment
         persistTask();
         Snackbar.make(getActivity().getWindow().getDecorView(), getString(R.string.toast_task_completed, TaskFieldAdapters.TITLE.get(mContentSet)),
                 Snackbar.LENGTH_SHORT).show();
-        // at present we just handle it like deletion, i.e. close the task in phone mode, do nothing in tablet mode
-        mCallback.onDelete();
+        mCallback.onTaskCompleted(mTaskUri);
         if (mShowFloatingActionButton)
         {
             // hide fab in two pane mode
@@ -662,7 +667,7 @@ public class ViewTaskFragment extends SupportFragment
         if (contentSet.containsKey(Tasks.ACCOUNT_TYPE))
         {
             mListColor = TaskFieldAdapters.LIST_COLOR.get(contentSet);
-            ((Callback) getActivity()).updateColor(new ValueColor(mListColor));
+            ((Callback) getActivity()).onListColorLoaded(new ValueColor(mListColor));
 
             updateColor();
 

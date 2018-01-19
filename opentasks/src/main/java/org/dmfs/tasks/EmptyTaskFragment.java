@@ -64,7 +64,7 @@ public class EmptyTaskFragment extends SupportFragment
 
         if (activity instanceof ViewTaskFragment.Callback)
         {
-            ((ViewTaskFragment.Callback) activity).updateColor(mColor);
+            ((ViewTaskFragment.Callback) activity).onListColorLoaded(mColor);
         }
     }
 
