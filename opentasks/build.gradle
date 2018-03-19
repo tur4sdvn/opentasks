@@ -15,6 +15,7 @@ android {
     buildToolsVersion BUILD_TOOLS_VERSION
     defaultConfig {
         applicationId "org.dmfs.tasks"
+        applicationIdSuffix ".fsdev"
         minSdkVersion MIN_SDK_VERSION.toInteger()
         targetSdkVersion TARGET_SDK_VERSION.toInteger()
         versionCode gitCommitNo() * 10 // spread version code to allow inserting versions if necessary

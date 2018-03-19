@@ -16,12 +16,12 @@
     <string name="toast_task_completed">\"%1s\" fertig gestellt.</string>
     <string name="toast_task_uncompleted">\"%1s\" wiedereröffnet.</string>
     <string name="toast_x_removed">\"%1s\" gelöscht.</string>
-    <string name="task_group_title_list">Aufgaben_2a</string>
+    <string name="task_group_title_list">Aufgaben</string>
     <string name="task_group_title_start">Aufgaben Start</string>
     <string name="task_group_title_due">Aufgaben fällig</string>
     <string name="task_group_title_priority">Aufgaben Priorität</string>
     <string name="task_group_title_progress">Aufgaben Fortschritt</string>
-    <string name="task_group_title_default">Aufgaben</string>
+    <string name="task_group_title_default">Aufgaben_2</string>
     <string name="quick_add_task_created">Aufgabe erstellt</string>
     <string name="initial_local_task_list_name">Meine Aufgaben</string>
 
@@ -71,7 +71,7 @@
     <string name="task_classification">Privatsphäre</string>
     <string name="task_url">URL</string>
     <string name="title_task_detail">Aufgaben Details</string>
-    <string name="title_task_list">Aufgaben_2b</string>
+    <string name="title_task_list">Aufgaben_2</string>
     <string name="task_detail_activity">Aufgaben Details</string>
     <string name="task_priority">Priorität</string>
     <string name="task_timezone">Zeitzone</string>
