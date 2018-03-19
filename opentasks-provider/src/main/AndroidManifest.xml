@@ -2,18 +2,21 @@
         xmlns:tools="http://schemas.android.com/tools"
         package="org.dmfs.tasks.provider">
 
-    <permission
-            android:name="org.dmfs.permission.READ_TASKS"
-            android:description="@string/opentasks_permission_description_read_tasks"
-            android:label="@string/opentasks_permission_read_tasks"
-            android:permissionGroup="android.permission-group.PERSONAL_INFO"
-            android:protectionLevel="dangerous"/>
-    <permission
-            android:name="org.dmfs.permission.WRITE_TASKS"
-            android:description="@string/opentasks_permission_description_write_tasks"
-            android:label="@string/opentasks_permission_write_tasks"
-            android:permissionGroup="android.permission-group.PERSONAL_INFO"
-            android:protectionLevel="dangerous"/>
+    <!--INSTALL_FAILED_DUPLICATE_PERMISSION-->
+    <!--permissions already owned by org.dmfs.caldav.lib-->
+    <!--if you installed CalDAV-Sync-->
+    <!--<permission-->
+            <!--android:name="org.dmfs.permission.READ_TASKS"-->
+            <!--android:description="@string/opentasks_permission_description_read_tasks"-->
+            <!--android:label="@string/opentasks_permission_read_tasks"-->
+            <!--android:permissionGroup="android.permission-group.PERSONAL_INFO"-->
+            <!--android:protectionLevel="dangerous"/>-->
+    <!--<permission-->
+            <!--android:name="org.dmfs.permission.WRITE_TASKS"-->
+            <!--android:description="@string/opentasks_permission_description_write_tasks"-->
+            <!--android:label="@string/opentasks_permission_write_tasks"-->
+            <!--android:permissionGroup="android.permission-group.PERSONAL_INFO"-->
+            <!--android:protectionLevel="dangerous"/>-->
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
